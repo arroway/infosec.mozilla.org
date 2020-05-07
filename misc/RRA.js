@@ -1,5 +1,8 @@
 function refreshRRA() {
   process_all_rra_docs();
+  copyHighPriority();
+  copyMaxRecommendation();
+  copyHighNumRecommendations();
 }
 
 function process_all_rra_docs() {
@@ -13,7 +16,7 @@ function process_all_rra_docs() {
   //Start fresh
   sheet.clearContents();
   // Headers
-  sheet.appendRow(['Link', 'Name', 'Service Owner', 'Director', 'Service Data Classification', 'Highest Risk Impact', 'Recommendations', 'Highest Recommendation', 'Reviewer', 'Creation date', 'Modification date']);
+  sheet.appendRow(['Link', 'Name', 'Service Owner', 'Director', 'Service Data Classification', 'Highest Risk Impact', 'Recommendations', 'Highest Recommendation', 'Reviewer', 'Creation date', 'Last modification date']);
 
   while (files.hasNext()) {
     var file = files.next();
@@ -154,5 +157,103 @@ function insert_rra(docid, fname, sheet, results) {
   sheet.appendRow(row);
   if (!valid) {
     Logger.log("Row is missing elements: "+row);
+  }
+}
+
+function copyHighPriority() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  var source_sheet = ss.getSheetByName("RRA3");
+  var target_sheet = ss.getSheetByName("High Priority");
+
+  target_sheet.clearContents();
+  target_sheet.appendRow(['Link', 'Name', 'Service Owner', 'Director', 'Service Data Classification', 'Highest Risk Impact', 'Recommendations', 'Highest Recommendation', 'Reviewer', 'Creation date', 'Last modification date']);
+
+  var maxRows = source_sheet.getLastRow();
+  for (i=1; i< maxRows + 1; i++) {
+    var source_range = source_sheet.getRange("A"+ (i + 1) +":K"+ (i + 1));
+    data = source_range.getValues();
+
+    // Select only MAXIMUM or HIGH risk services to be copied
+    if (data[0][5].indexOf("MAXIMUM") == -1 && data[0][5].indexOf("HIGH") == -1) {
+      continue;
+    }
+
+    // Select only MAXIMUM and HIGH risk services with MAXIMUM or HIGH open recommendations
+    if (data[0][7].indexOf("MAXIMUM") == -1 && data[0][7].indexOf("HIGH") == -1) {
+      continue;
+    }
+
+    var last_row = target_sheet.getLastRow();
+
+    if (last_row == 0) {
+      var target_range = target_sheet.getRange("A"+ (i +1)+":K"+ (i + 1));
+    } else {
+      target_sheet.insertRowAfter(last_row);
+      var target_range = target_sheet.getRange("A"+(last_row+1)+":K"+(last_row+1));
+    }
+    source_range.copyTo(target_range);
+  }
+}
+
+function copyMaxRecommendation() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  var source_sheet = ss.getSheetByName("RRA3");
+  var target_sheet = ss.getSheetByName("Open Maximum Recommendations");
+
+  target_sheet.clearContents();
+  target_sheet.appendRow(['Link', 'Name', 'Service Owner', 'Director', 'Service Data Classification', 'Highest Risk Impact', 'Recommendations', 'Highest Recommendation', 'Reviewer', 'Creation date', 'Last modification date']);
+
+  var maxRows = source_sheet.getLastRow();
+  for (i=1; i< maxRows + 1; i++) {
+    var source_range = source_sheet.getRange("A"+ (i + 1) +":K"+ (i + 1));
+    data = source_range.getValues();
+
+    // Select only services with MAXIMUM open recommendations
+    if (data[0][7].indexOf("MAXIMUM") == -1) {
+      continue;
+    }
+
+    var last_row = target_sheet.getLastRow();
+
+    if (last_row == 0) {
+      var target_range = target_sheet.getRange("A"+ (i +1)+":K"+ (i + 1));
+    } else {
+      target_sheet.insertRowAfter(last_row);
+      var target_range = target_sheet.getRange("A"+(last_row+1)+":K"+(last_row+1));
+    }
+    source_range.copyTo(target_range);
+  }
+}
+
+function copyHighNumRecommendations() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  var source_sheet = ss.getSheetByName("RRA3");
+  var target_sheet = ss.getSheetByName("+5 Open Recommendations");
+
+  target_sheet.clearContents();
+  target_sheet.appendRow(['Link', 'Name', 'Service Owner', 'Director', 'Service Data Classification', 'Highest Risk Impact', 'Recommendations', 'Highest Recommendation', 'Reviewer', 'Creation date', 'Last modification date']);
+
+  var maxRows = source_sheet.getLastRow();
+  for (i=1; i< maxRows + 1; i++) {
+    var source_range = source_sheet.getRange("A"+ (i + 1) +":K"+ (i + 1));
+    data = source_range.getValues();
+
+    // Select only services with number of open recommendations >= 5
+    if (data[0][6] < 5) {
+      continue;
+    }
+
+    var last_row = target_sheet.getLastRow();
+
+    if (last_row == 0) {
+      var target_range = target_sheet.getRange("A"+ (i +1)+":K"+ (i + 1));
+    } else {
+      target_sheet.insertRowAfter(last_row);
+      var target_range = target_sheet.getRange("A"+(last_row+1)+":K"+(last_row+1));
+    }
+    source_range.copyTo(target_range);
   }
 }
