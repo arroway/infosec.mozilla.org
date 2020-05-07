@@ -44,7 +44,7 @@ function process_all_rra_docs() {
 // TDB: take into account Mozilla Archive cases (fallback to last editor); could have a FoxSec tag too.
 function is_foxsec(fid) {
   var owner = DriveApp.getFileById(fid).getOwner().getName();
-  var foxsec_owners = ["AJ Bahnken", "Aaron Meihm", "Gregory Guthe", "Hal Wine", "Julien Vehent", "Simon Bennetts", "Stephanie Ouillon"];
+  var foxsec_owners = ["AJ Bahnken", "Aaron Meihm", "Gregory Guthe", "Hal Wine", "Julien Vehent", "Simon Bennetts", "Stéphanie Ouillon"];
   for (i = 0; i < foxsec_owners.length; i++) {
     var o = foxsec_owners[i];
     if (o.indexOf(owner) !== -1){
